@@ -18,10 +18,11 @@
 
   <script>
     const CFG = {
-      EMAILJS_PUBLIC_KEY:  "YOUR_EMAILJS_PUBLIC_KEY",
-      EMAILJS_SERVICE_ID:  "YOUR_EMAILJS_SERVICE_ID",
-      EMAILJS_TEMPLATE_ID: "YOUR_EMAILJS_TEMPLATE_ID",
-      GAS_URL:             "YOUR_GAS_URL_HERE",
+      EMAILJS_PUBLIC_KEY:  "lKZ5jIxav3mK6JvZa",
+      EMAILJS_SERVICE_ID:  "service_599tber",
+      EMAILJS_TEMPLATE_ID: "template_whdldcn",
+      GAS_URL:             "https://script.google.com/macros/s/AKfycbwhhjOYECTnIqlkYu4ihSbrpW04ZepushLiT2S3ZciemHp0cVtMWBIYIpSw10sok3PL/exec",
+      GAS_TOKEN:           "eyc26_063bca0bcda4e9439e9e92c849b5faa9",
       TOTAL_SEATS:         120,
       EVENT_DATE:          "2026-08-20T09:00:00",
     };
@@ -1205,10 +1206,6 @@
 
   /* ── Seats ── */
   var globalRegistered = 0;
-  function getRegs(){ try{ return JSON.parse(localStorage.getItem("eyc26_regs")||"[]"); }catch(e){ return []; } }
-  function saveRegs(a){ localStorage.setItem("eyc26_regs",JSON.stringify(a)); }
-  function getPeak(){ return parseInt(localStorage.getItem("eyc26_peak")||"0",10); }
-  function savePeak(n){ if(n>getPeak()) localStorage.setItem("eyc26_peak",String(n)); }
   function seatsLeft(){ return CFG.TOTAL_SEATS - globalRegistered; }
   function refreshSeats(){
     var n = Math.max(seatsLeft(),0);
@@ -1217,13 +1214,12 @@
     if(btn && n<=0){ btn.disabled=true; btn.textContent="Registration closed"; }
   }
   async function fetchGlobalCount(){
-    globalRegistered = Math.max(getRegs().length, getPeak());
-    refreshSeats();
-    if(!CFG.GAS_URL || CFG.GAS_URL.includes("YOUR_")) return;
+    if(!CFG.GAS_URL || CFG.GAS_URL.includes("YOUR_")){ refreshSeats(); return; }
     try{
       var res = await fetch(CFG.GAS_URL+"?action=count");
-      if(res.ok){ var d=await res.json(); var c=parseInt(d.count,10); if(!isNaN(c)){ globalRegistered=Math.max(globalRegistered,c); savePeak(globalRegistered); refreshSeats(); } }
+      if(res.ok){ var d=await res.json(); var c=parseInt(d.count,10); if(!isNaN(c)){ globalRegistered=c; } }
     }catch(_){}
+    refreshSeats();
   }
   fetchGlobalCount();
 
@@ -1258,7 +1254,7 @@
 
   /* ── Serial ── */
   function genSerial(){
-    var base = Math.max(globalRegistered,getRegs().length)+1;
+    var base = globalRegistered+1;
     var r = Math.random().toString(36).substring(2,6).toUpperCase();
     return "EYC26-"+String(base).padStart(4,"0")+r;
   }
@@ -1286,9 +1282,6 @@
     if(phone.replace(/\D/g,"").length<7){ document.getElementById("err-phone").classList.add("show"); return; }
     if(seatsLeft()<=0){ document.getElementById("err-full").classList.add("show"); return; }
 
-    var regs=getRegs();
-    if(regs.find(function(r){ return r.email===email; })){ document.getElementById("err-dup").classList.add("show"); return; }
-
     if(CFG.GAS_URL && !CFG.GAS_URL.includes("YOUR_")){
       try{
         var dr=await fetch(CFG.GAS_URL+"?action=check&email="+encodeURIComponent(email));
@@ -1300,14 +1293,34 @@
     var serial   = genSerial();
     var fullName = fname+" "+lname;
 
-    regs.push({name:fullName,email:email,phone:phone,age:age,stage:stage,church:church,source:src,serial:serial,ts:Date.now()});
-    saveRegs(regs); globalRegistered++; savePeak(globalRegistered); refreshSeats();
-
     if(CFG.GAS_URL && !CFG.GAS_URL.includes("YOUR_")){
-      fetch(CFG.GAS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},
-        body:JSON.stringify({Name:fullName,Email:email,Phone:phone,Age:age,Stage:stage,Church:church,Source:src,Expectation:expect,Gadgets:gadgets,Extra:extra,Serial:serial,Timestamp:new Date().toISOString()})
-      }).catch(function(){ showToast("Sheet sync failed — your pass is saved."); });
+      try{
+        var pr = await fetch(CFG.GAS_URL,{method:"POST",headers:{"Content-Type":"text/plain"},
+          body:JSON.stringify({Token:CFG.GAS_TOKEN,Name:fullName,Email:email,Phone:phone,Age:age,Stage:stage,Church:church,Source:src,Expectation:expect,Gadgets:gadgets,Extra:extra,Serial:serial,Timestamp:new Date().toISOString()})
+        });
+        var pd = await pr.json();
+        if(!pd.ok){
+          btn.disabled=false; btn.textContent="Claim my free spot →";
+          if(pd.error==="full"){
+            if(typeof pd.count==="number") globalRegistered=pd.count;
+            refreshSeats();
+            document.getElementById("err-full").classList.add("show");
+          }else if(pd.error==="duplicate"){
+            document.getElementById("err-dup").classList.add("show");
+          }else{
+            showToast("Registration failed — please try again.");
+          }
+          return;
+        }
+        globalRegistered = (typeof pd.count==="number") ? pd.count : globalRegistered+1;
+      }catch(_){
+        globalRegistered++;
+        showToast("Sheet sync failed — your pass is saved.");
+      }
+    }else{
+      globalRegistered++;
     }
+    refreshSeats();
 
     document.getElementById("t-serial").textContent = serial;
     document.getElementById("t-name").textContent   = fullName;
