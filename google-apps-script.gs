@@ -48,6 +48,32 @@ function doGet(e) {
     return jsonOut_({ exists: false });
   }
 
+  if (action === "verify") {
+    var serial = String(e.parameter.serial || "").trim();
+    if (!serial) {
+      return jsonOut_({ valid: false });
+    }
+    var vData = sheet.getDataRange().getValues();
+    var serialCol = HEADERS.indexOf("Serial");
+    var nameCol = HEADERS.indexOf("Name");
+    var churchCol = HEADERS.indexOf("Church");
+    var tsCol = HEADERS.indexOf("Timestamp");
+    for (var j = 1; j < vData.length; j++) {
+      if (String(vData[j][serialCol]).trim() === serial) {
+        return jsonOut_({
+          valid: true,
+          name: vData[j][nameCol],
+          church: vData[j][churchCol],
+          serial: vData[j][serialCol],
+          spot: j,
+          total: TOTAL_SEATS,
+          timestamp: vData[j][tsCol]
+        });
+      }
+    }
+    return jsonOut_({ valid: false });
+  }
+
   return jsonOut_({ error: "unknown action" });
 }
 

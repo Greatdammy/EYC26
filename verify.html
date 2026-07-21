@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verify Pass — EYC26</title>
+<meta name="robots" content="noindex" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Big+Shoulders+Stencil:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --sky: #7CC8F8;
+    --azure: #3AABEF;
+    --river: #1A85C8;
+    --ink: #0C3A5C;
+    --good: #33C17A;
+    --bad: #E2534B;
+  }
+  * , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #050d22;
+    color: #fff;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: #0c1c3f;
+    border: 1px solid rgba(124,200,248,0.25);
+    border-radius: 6px;
+    padding: 32px 28px;
+    text-align: center;
+  }
+  .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 8px;
+  }
+  .wordmark {
+    font-family: 'Big Shoulders Stencil', 'Arial Narrow', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+  .status-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .status-icon.pending { background: rgba(124,200,248,0.12); color: var(--sky); }
+  .status-icon.valid   { background: rgba(51,193,122,0.15); color: var(--good); }
+  .status-icon.invalid { background: rgba(226,83,75,0.15); color: var(--bad); }
+  .status-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .status-label.valid   { color: var(--good); }
+  .status-label.invalid { color: var(--bad); }
+  .status-label.pending { color: var(--sky); }
+  .sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 22px;
+  }
+  .details {
+    text-align: left;
+    border-top: 1px solid rgba(124,200,248,0.15);
+    padding-top: 18px;
+    display: none;
+  }
+  .details.show { display: block; }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+  }
+  .row .l {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sky);
+    white-space: nowrap;
+  }
+  .row .v {
+    font-size: 13px;
+    color: #fff;
+    text-align: right;
+    word-break: break-word;
+  }
+  .footer-note {
+    margin-top: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.25);
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="eyebrow">Eagles Youth Camp &middot; 2026</div>
+  <div class="wordmark">The Surge</div>
+
+  <div id="icon" class="status-icon pending">&hellip;</div>
+  <div id="label" class="status-label pending">Checking pass&hellip;</div>
+  <div id="sub" class="sub">Looking up this ticket against the registration list.</div>
+
+  <div id="details" class="details">
+    <div class="row"><span class="l">Name</span><span class="v" id="d-name">&mdash;</span></div>
+    <div class="row"><span class="l">Church</span><span class="v" id="d-church">&mdash;</span></div>
+    <div class="row"><span class="l">Spot</span><span class="v" id="d-spot">&mdash;</span></div>
+    <div class="row"><span class="l">Serial</span><span class="v" id="d-serial">&mdash;</span></div>
+  </div>
+
+  <div class="footer-note">EYC26 &middot; Aug 20&ndash;23, 2026 &middot; Redemption City</div>
+</div>
+
+<script>
+  // Keep in sync with CFG.GAS_URL in index.html if the Apps Script is ever redeployed.
+  var GAS_URL = "https://script.google.com/macros/s/AKfycbwhhjOYECTnIqlkYu4ihSbrpW04ZepushLiT2S3ZciemHp0cVtMWBIYIpSw10sok3PL/exec";
+
+  function setStatus(kind, iconText, label, sub){
+    var icon = document.getElementById("icon");
+    var lbl  = document.getElementById("label");
+    icon.className = "status-icon " + kind;
+    icon.textContent = iconText;
+    lbl.className = "status-label " + kind;
+    lbl.textContent = label;
+    document.getElementById("sub").textContent = sub;
+  }
+
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  (async function verify(){
+    var params = new URLSearchParams(location.search);
+    var serial = (params.get("serial") || "").trim();
+
+    if(!serial){
+      setStatus("invalid", "✕", "No pass serial provided", "This link is missing a ticket serial to verify.");
+      return;
+    }
+    if(!GAS_URL || GAS_URL.includes("YOUR_")){
+      setStatus("invalid", "✕", "Verification unavailable", "The registration backend isn't configured yet.");
+      return;
+    }
+
+    try{
+      var res = await fetch(GAS_URL + "?action=verify&serial=" + encodeURIComponent(serial));
+      var data = await res.json();
+
+      if(data.valid){
+        setStatus("valid", "✓", "Valid pass", "This is a registered EYC26 attendee.");
+        document.getElementById("d-name").textContent = data.name || "—";
+        document.getElementById("d-church").textContent = data.church || "—";
+        document.getElementById("d-spot").textContent = data.spot ? ("No. " + String(data.spot).padStart(3,"0") + " / " + data.total) : "—";
+        document.getElementById("d-serial").textContent = data.serial || serial;
+        document.getElementById("details").classList.add("show");
+      }else{
+        setStatus("invalid", "✕", "Not a valid pass", "No registration found matching this serial.");
+        document.getElementById("d-serial").textContent = serial;
+        document.getElementById("details").classList.add("show");
+        document.getElementById("d-name").parentElement.style.display = "none";
+        document.getElementById("d-church").parentElement.style.display = "none";
+        document.getElementById("d-spot").parentElement.style.display = "none";
+      }
+    }catch(_){
+      setStatus("invalid", "!", "Couldn't verify", "Network error — check your connection and try again.");
+    }
+  })();
+</script>
+
+</body>
+</html>

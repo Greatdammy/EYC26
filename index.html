@@ -11,7 +11,8 @@
   <meta name="twitter:card" content="summary" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" /> -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Big+Shoulders+Stencil:wght@700;800&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -638,6 +639,83 @@
       .tkt-acts, .share-row { flex-direction: column; }
       .btt { bottom: 20px; left: 20px; }
     }
+
+    /* ─── SURGE WORDMARK ACCENT ──────────────────────────────────
+       Bold condensed stencil-cut font for literal "Surge" wordmark
+       instances only (nav brand, hero, ticket, footer, section
+       accents) — free/commercially-licensed alternative matching
+       the referenced premium font's weight and notch-cut style.
+       Placed last so it overrides the base --script rule when both
+       classes land on the same element. */
+    .surge-font {
+      font-family: 'Big Shoulders Stencil', 'Arial Narrow', sans-serif;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    /* Light waves — reusable on its own (e.g. paired taglines like "streams
+       from the heart") or combined with .surge-font. A repeating series of
+       bright ripple-bands drifts continuously through the letters, like
+       actual waves of light passing through the text (not a single sweep,
+       and not the letters themselves moving). Feature-queried so browsers
+       without background-clip:text support just fall back to solid white
+       text instead of going invisible.
+       Previous single-sweep + letter-bob version kept below, commented out,
+       in case you want to revert. */
+    /*
+    .text-shimmer { color: #fff; }
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .text-shimmer {
+        background-image: linear-gradient(110deg, #fff 35%, var(--sky) 48%, #fff 60%, #fff 100%);
+        background-size: 260% 100%;
+        background-position: 220% 0;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+        animation: surgeShine 3.5s ease-in-out infinite;
+      }
+    }
+    .surge-font.text-shimmer { animation: surgeWave 2.6s ease-in-out infinite; }
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .surge-font.text-shimmer {
+        animation: surgeShine 3.5s ease-in-out infinite, surgeWave 2.6s ease-in-out infinite;
+      }
+    }
+    @keyframes surgeWave {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25%      { transform: translateY(-4px) rotate(-1deg); }
+      50%      { transform: translateY(0) rotate(0deg); }
+      75%      { transform: translateY(4px) rotate(1deg); }
+    }
+    */
+    .text-shimmer {
+      color: #fff;
+    }
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .text-shimmer {
+        background-image: repeating-linear-gradient(
+          110deg,
+          #fff 0%,
+          #fff 6%,
+          var(--sky) 11%,
+          #fff 16%
+        );
+        background-size: 300% 100%;
+        background-position: 0% 0;
+        -webkit-background-clip: text;
+        background-clip: text;
+        /* !important: .text-shimmer must win over more specific descendant
+           color rules (e.g. .tl-wm .tw2) wherever it's applied, or the
+           waves silently disappear in some browsers behind opaque text. */
+        -webkit-text-fill-color: transparent !important;
+        color: transparent !important;
+        animation: surgeShine 4s linear infinite;
+      }
+    }
+    @keyframes surgeShine {
+      0%   { background-position: 0% 0; }
+      100% { background-position: -300% 0; }
+    }
   </style>
 </head>
 <body>
@@ -648,7 +726,8 @@
     <img src="logo.jpeg" alt="TCBCYM Logo" />
     <div class="nav-brand">
       <span class="nav-brand-top">Eagles Youth Camp</span>
-      <span class="nav-brand-name">The Surge</span>
+      <!-- <span class="nav-brand-name">The Surge</span> -->
+      <span class="nav-brand-name surge-font text-shimmer">The Surge</span>
     </div>
   </a>
   <ul class="nav-links" id="nav-links">
@@ -693,8 +772,9 @@
 
   <div class="hero-title fu d2">
     <span class="hero-sup">The Theme &mdash; 2026</span>
-    <span class="hero-word hero-word-a">The Surge.</span>
-    <span class="hero-word hero-word-b" style="font-size:clamp(28px,3.8vw,52px);line-height:1.3">streams from the heart.</span>
+    <!-- <span class="hero-word hero-word-a">The Surge.</span> -->
+    <span class="hero-word hero-word-a surge-font text-shimmer">The Surge.</span>
+    <span class="hero-word hero-word-b text-shimmer" style="font-size:clamp(28px,3.8vw,52px);line-height:1.3">streams from the heart.</span>
   </div>
 
   <p class="hero-verse fu d3">
@@ -745,7 +825,8 @@
     <div>
       <p class="section-tag reveal">01 &mdash; The Theme</p>
       <div class="section-rule reveal rv1"></div>
-      <h2 class="section-h reveal rv2">What is<br><em>The Surge?</em></h2>
+      <!-- <h2 class="section-h reveal rv2">What is<br><em>The Surge?</em></h2> -->
+      <h2 class="section-h reveal rv2">What is<br><em class="surge-font text-shimmer">The Surge?</em></h2>
       <div class="ab-body reveal rv3">
         <p>Eagles Youth Camp 2026 is built on a powerful vision from John 7:38 &mdash; that those who believe in Christ carry within them a surge of living water, streaming from the heart into every area of life.</p>
         <p>The Surge is an invitation to open your heart fully to God &mdash; streams from the heart, rising as a surge of His presence, overflowing into every area of your life and everyone around you.</p>
@@ -786,7 +867,8 @@
 <section id="speaker">
   <p class="section-tag reveal">02 &mdash; Featured Speakers</p>
   <div class="section-rule reveal rv1"></div>
-  <h2 class="section-h reveal rv2">Voices of the<br><em>Surge.</em></h2>
+  <!-- <h2 class="section-h reveal rv2">Voices of the<br><em>Surge.</em></h2> -->
+  <h2 class="section-h reveal rv2">Voices of the<br><em class="surge-font text-shimmer">Surge.</em></h2>
 
   <div class="sp-carousel reveal rv3" style="margin-top:48px">
     <div class="sp-track-wrap">
@@ -999,7 +1081,8 @@
 <!-- SUCCESS / TICKET -->
 <section id="success">
   <p class="suc-lbl">&#10003; Registration Confirmed</p>
-  <h2 class="suc-h">You&rsquo;re in,<br>The Surge.</h2>
+  <!-- <h2 class="suc-h">You&rsquo;re in,<br>The Surge.</h2> -->
+  <h2 class="suc-h">You&rsquo;re in,<br><span class="surge-font text-shimmer">The Surge.</span></h2>
   <p class="suc-sub" id="suc-msg">Your spot is confirmed. Download your pass below.</p>
 
   <div class="tw">
@@ -1015,7 +1098,8 @@
       <div class="tl">
         <div class="tl-logo"><img src="logo.jpeg" alt="TCBCYM" /></div>
         <div class="tl-ev">EAGLES YOUTH CAMP</div>
-        <div class="tl-wm">The<br>Surge.<span class="tw2" style="font-size:11px;display:block;margin-top:4px">streams from the heart</span></div>
+        <!-- <div class="tl-wm">The<br>Surge.<span class="tw2" style="font-size:11px;display:block;margin-top:4px">streams from the heart</span></div> -->
+        <div class="tl-wm"><span class="surge-font text-shimmer">The<br>Surge.</span><span class="tw2 text-shimmer" style="font-size:11px;display:block;margin-top:4px">streams from the heart</span></div>
         <div class="tl-meta">
           <strong>Aug 20&ndash;23, 2026</strong>Date<br><br>
           <strong>Redemption City</strong>Venue<br><br>
@@ -1110,8 +1194,9 @@
         <p class="ac-card-name" id="ac-card-name"></p>
         <p class="ac-card-tag">I will be attending</p>
         <div class="ac-card-title">
-          <span class="ac-ct-flowing">The Surge.</span>
-          <span class="ac-ct-river">streams from the heart.</span>
+          <!-- <span class="ac-ct-flowing">The Surge.</span> -->
+          <span class="ac-ct-flowing surge-font text-shimmer">The Surge.</span>
+          <span class="ac-ct-river text-shimmer">streams from the heart.</span>
         </div>
         <div class="ac-card-rule"></div>
         <div class="ac-card-details">
@@ -1133,7 +1218,8 @@
   <div class="f-brand">
     <img src="logo.jpeg" alt="TCBCYM Logo" />
     <div class="f-txt">
-      <div class="f-logo">The Surge.<span>streams from the heart.</span></div>
+      <!-- <div class="f-logo">The Surge.<span>streams from the heart.</span></div> -->
+      <div class="f-logo"><span class="surge-font text-shimmer">The Surge.</span><span class="text-shimmer">streams from the heart.</span></div>
       <div class="f-tag">Eagles Youth Camp 2026</div>
     </div>
   </div>
@@ -1330,8 +1416,10 @@
     document.getElementById("suc-msg").textContent = "“"+fname+", your spot is confirmed. Download your pass below.”";
 
     var qrBox=document.getElementById("qr-box"); qrBox.innerHTML="";
+    var basePath = location.pathname.replace(/index\.html$/,"");
+    var verifyUrl = location.origin + basePath + "verify.html?serial=" + encodeURIComponent(serial);
     try{
-      new QRCode(qrBox,{text:"EYC26:"+serial+":"+encodeURIComponent(fullName),width:72,height:72,colorDark:"#0C3A5C",colorLight:"#EBF8FF",correctLevel:QRCode.CorrectLevel.M});
+      new QRCode(qrBox,{text:verifyUrl,width:72,height:72,colorDark:"#0C3A5C",colorLight:"#EBF8FF",correctLevel:QRCode.CorrectLevel.M});
     }catch(_){
       qrBox.innerHTML="<div style='width:72px;height:72px;background:rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:center;font-size:6px;color:rgba(12,58,92,0.5);text-align:center;padding:4px;word-break:break-all'>"+escHtml(serial)+"</div>";
     }
