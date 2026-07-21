@@ -177,6 +177,11 @@
         document.getElementById("d-spot").textContent = data.spot ? ("No. " + String(data.spot).padStart(3,"0") + " / " + data.total) : "—";
         document.getElementById("d-serial").textContent = data.serial || serial;
         document.getElementById("details").classList.add("show");
+      }else if(data.error){
+        // Backend returned an error (e.g. an action the deployed script
+        // doesn't recognize yet) — distinct from a genuine no-match, so
+        // gate staff don't mistake a deploy issue for an invalid ticket.
+        setStatus("pending", "!", "Verification backend error", "The registration backend returned an error — try again shortly, or check the Apps Script deployment.");
       }else{
         setStatus("invalid", "✕", "Not a valid pass", "No registration found matching this serial.");
         document.getElementById("d-serial").textContent = serial;
