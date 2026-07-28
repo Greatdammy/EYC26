@@ -801,7 +801,7 @@
   <div class="hero-act fu d6">
     <a href="#register" class="btn-p">Claim your spot &rarr;</a>
     <a href="#about" class="btn-g">Learn more</a>
-    <div class="seat-bdg"><span id="seats-hero">120</span> spots left</div>
+    <div class="seat-bdg"><span id="seats-hero">&hellip;</span> spots left</div>
   </div>
 
 </section>
@@ -1006,7 +1006,7 @@
         <div class="rd"><span class="rd-l">Date</span><span class="rd-v">August 20&ndash;23, 2026</span></div>
         <div class="rd"><span class="rd-l">Venue</span><span class="rd-v">Redemption City</span></div>
         <div class="rd"><span class="rd-l">Entry</span><span class="rd-v">Free</span></div>
-        <div class="rd"><span class="rd-l">Spots</span><span class="rd-v"><span id="seats-reg">120</span> of 120 remaining</span></div>
+        <div class="rd"><span class="rd-l">Spots</span><span class="rd-v"><span id="seats-reg">&hellip;</span> of 120 remaining</span></div>
       </div>
     </div>
     <div class="reveal rv2">
@@ -1068,7 +1068,7 @@
         </div>
         <span class="ferr" id="err-dup">This email is already registered.</span>
         <span class="ferr" id="err-full">Registration is closed &mdash; all 120 spots have been claimed.</span>
-        <div class="sc">Spots remaining: <span id="seats-form">120</span> / 120</div>
+        <div class="sc">Spots remaining: <span id="seats-form">&hellip;</span> / 120</div>
         <div class="sbanner sb-ok" id="sb-ok"></div>
         <div class="sbanner sb-err" id="sb-err">Email delivery failed. Your ticket is saved below.</div>
         <button class="btn-reg" id="btn-reg" type="submit">Claim my free spot &rarr;</button>
@@ -1302,9 +1302,17 @@
   async function fetchGlobalCount(){
     if(!CFG.GAS_URL || CFG.GAS_URL.includes("YOUR_")){ refreshSeats(); return; }
     try{
-      var res = await fetch(CFG.GAS_URL+"?action=count");
-      if(res.ok){ var d=await res.json(); var c=parseInt(d.count,10); if(!isNaN(c)){ globalRegistered=c; } }
-    }catch(_){}
+      var res = await fetch(CFG.GAS_URL+"?action=count", {cache:"no-store"});
+      if(!res.ok){ console.error("EYC26 seat count: HTTP "+res.status+" from sheet endpoint"); }
+      else{
+        var d=await res.json();
+        var c=parseInt(d.count,10);
+        if(!isNaN(c)){ globalRegistered=c; console.log("EYC26 seat count: fetched "+c+" from sheet"); }
+        else{ console.error("EYC26 seat count: unexpected response", d); }
+      }
+    }catch(err){
+      console.error("EYC26 seat count: fetch failed —", err);
+    }
     refreshSeats();
   }
   fetchGlobalCount();
